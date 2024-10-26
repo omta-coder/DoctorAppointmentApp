@@ -69,15 +69,15 @@ const Appointment = () => {
         const slotTime = formattedTime;
 
 
-        const isSlotAvailable = docInfo.slots_booked[slotDate] && docInfo.slots_booked[slotDate].includes(slotTime)?false:true
-        if (isSlotAvailable) {
+        // const isSlotAvailable = docInfo.slots_booked[slotDate] && docInfo.slots_booked[slotDate].includes(slotTime)?false:true
+        // if (isSlotAvailable) {
           
-          // add slot to array
-          timeSlots.push({
-            datetime: new Date(currentDate),
-            time: formattedTime,
-          });
-        }
+        // }
+        // add slot to array
+        timeSlots.push({
+          datetime: new Date(currentDate),
+          time: formattedTime,
+        });
 
         // Increament time by 30 minutes
         currentDate.setMinutes(currentDate.getMinutes() + 30);

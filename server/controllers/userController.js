@@ -173,3 +173,45 @@ export const bookAppointment = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
+//API to get user appointment for frontend my-appointment page
+export const listAppointment = async(req,res) =>{
+  try {
+    const {userId} = req.body;
+    const appointments  = await appointmentModel.find({userId})
+    res.status(200).json({success:true,appointments});
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+//API to cancel appointment
+export const cancelAppointment = async(req,res)=>{
+  try {
+    const { userId,appointmentId} = req.body
+    const appointmentData = await appointmentModel.findById(appointmentId)
+
+    //verify appointment user
+    if(appointmentData.userId !== userId){
+      return res.status(401).json({success:false,message:" Unauthorized action"})
+    }
+    //update appointment status to cancelled
+    await appointmentModel.findByIdAndUpdate(appointmentId,{cancelled:true})
+    
+    //releasing doctor slot
+    const {docId,slotDate,slotTime} = appointmentData
+    const doctorData = await doctorModel.findById(docId)
+
+    const slots_booked = doctorData.slots_booked
+    slots_booked[slotDate] = slots_booked[slotDate].filter(e=>e!==slotTime)
+    
+    await doctorModel.findByIdAndUpdate(docId,{slots_booked})
+    res.json({success:true,message:"Appointment Cancelled!"})
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
