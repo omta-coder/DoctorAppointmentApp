@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { v2 as cloudinary } from "cloudinary";
 import doctorModel from "../models/doctorModel.js";
 import jwt from "jsonwebtoken";
+import appointmentModel from "../models/appointmentModel.js";
 
 //API for adding doctor
 export const addDoctor = async (req, res) => {
@@ -46,12 +47,10 @@ export const addDoctor = async (req, res) => {
 
     //validating strong password
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Password must be at least 6 characters.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters.",
+      });
     }
 
     //hashing doctor password
@@ -98,13 +97,11 @@ export const loginAdmin = async (req, res) => {
       password === process.env.ADMIN_PASSWORD
     ) {
       const token = jwt.sign(email + password, process.env.JWT_SECRET);
-      res
-        .status(200)
-        .json({
-          success: true,
-          message: "Admin logged in successfully.",
-          token,
-        });
+      res.status(200).json({
+        success: true,
+        message: "Admin logged in successfully.",
+        token,
+      });
     } else {
       return res
         .status(400)
@@ -120,13 +117,26 @@ export const loginAdmin = async (req, res) => {
 export const allDoctors = async (req, res) => {
   try {
     const doctors = await doctorModel.find({}).select("-password");
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Doctors list fetched successfully.",
-        doctors,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Doctors list fetched successfully.",
+      doctors,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+//API to get appointments List
+export const appointmentsAdmin = async (req, res) => {
+  try {
+    const appointments = await appointmentModel.find({});
+    res.status(200).json({
+      success: true,
+      message: "Appointments list fetched successfully.",
+      appointments,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: error.message });
