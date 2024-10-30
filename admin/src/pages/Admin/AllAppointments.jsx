@@ -40,7 +40,7 @@ const AllAppointments = () => {
             </div>
             <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
             <p>
-              {slotDateFormat(item.slotDate)},{item.slotTime}
+              {slotDateFormat(item.slotDate)} , {item.slotTime}
             </p>
             <div className="flex items-center gap-2">
               <img
