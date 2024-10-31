@@ -67,3 +67,66 @@ export const appointmentsDoctor = async(req,res)=>{
     res.status(500).json({ success: false, message: error.message });
   }
 }
+
+//API to mark appointment completed for doctor
+export const appointmentComplete = async(req,res)=>{
+  try {
+    const {docId,appointmentId} = req.body;
+    const appointmentData = await appointmentModel.findById(appointmentId)
+    if(appointmentData && appointmentData.docId === docId){
+      await appointmentModel.findByIdAndUpdate(appointmentId,{isCompleted:true})
+      res.json({success:true,message:"Appointment completed successfully"})
+    }else{
+      res.json({success:false,message:"Invalid appointment or doctor id"})
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+//API to cancel appointment for doctor panel
+export const appointmentCancel = async(req,res)=>{
+  try {
+    const {docId,appointmentId} = req.body;
+    const appointmentData = await appointmentModel.findById(appointmentId)
+    if(appointmentData && appointmentData.docId === docId){
+      await appointmentModel.findByIdAndUpdate(appointmentId,{cancelled:true})
+      res.json({success:true,message:"Appointment cancelled successfully"})
+    }else{
+      res.json({success:false,message:"Cancellation Failed!"})
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+//API to get dashboard data for doctor panel
+export const doctorDashboard = async(req,res)=>{
+  try {
+    const {docId} = req.body;
+    const appointments = await appointmentModel.find({docId})
+    let earnings = 0
+    appointments.map((item)=>{
+      if(item.isCompleted || item.payment){
+        earnings += item.payment
+      }
+    })
+    let patients = []
+    appointments.map((item)=>{
+      if(!patients.includes(item.userId)){
+        patients.push(item.userId)
+      }
+    })
+    const dashData = {
+      earnings,
+      appointments:appointments.length,
+      patients:patients.length,
+      latestAppointments:appointments.reverse().slice(0,5)
+    }
+    res.json({success:true,message:"Dashboard data fetched successfully",dashData})
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
